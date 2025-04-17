@@ -1,0 +1,13 @@
+copy code and save it docker file
+
+docker-compose.yml 
+
+run 
+
+docker-compose up -d 
+
+this will install keycloak with mysql database on your docker desktop 
+
+have fun 
+
+if you need more complex chatgpt is your friend or search on youtube. 

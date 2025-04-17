@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: keycloak-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: change@@@   # advice to change this
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: keycloakpassword
+    command: --max-connections=500 --innodb_flush_log_at_trx_commit=0 --innodb_lock_wait_timeout=50
+    ports:
+      - "3306:3306"
+    networks:
+      - keycloak-network
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.5
+    container_name: keycloak
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: adminpassword
+
+      # Database Configuration
+      KC_DB: mysql
+      KC_DB_URL: "jdbc:mysql://keycloak-mysql:3306/keycloak?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloakpassword  # advice to change this
+      KC_DB_POOL_INITIAL_SIZE: 10
+      KC_DB_POOL_MIN_SIZE: 10
+      KC_DB_POOL_MAX_SIZE: 50
+
+      # Enable Development Mode
+      KC_HOSTNAME: localhost
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+
+      # Optimize Performance
+      KC_CACHE: ispn
+    # KC_CACHE_STACK: embedded
+      KC_FEATURES_DISABLED: "admin-fine-grained-authz,authorization,metrics,web-authn"
+      QUARKUS_LOG_LEVEL: "INFO"
+      KC_LOG_LEVEL: "INFO"
+
+    ports:
+      - "8980:8080"  # Keycloak Admin Console
+      - "8443:8443"  # HTTPS (optional)
+    networks:
+      - keycloak-network
+    command: ["start-dev"]  # Run in development mode
+
+networks:
+  keycloak-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
